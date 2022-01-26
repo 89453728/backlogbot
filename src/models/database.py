@@ -118,7 +118,7 @@ def get_all_by_col(db,table_name,condition,order=""):
         
         task = "SELECT * FROM "+table_name
         if condition != "":
-                task += " WHERE" + condition
+                task += " WHERE " + condition
         if order != "":
                 task += " " + order
         cur=con.cursor()

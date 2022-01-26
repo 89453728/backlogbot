@@ -1,7 +1,7 @@
 # Telegram Bots template
 from telegram.ext import (Updater,CommandHandler,MessageHandler,Filters)
 from models.msg_handler import (message_handler)
-from models.database import (put_in_table, rem_from_table, get_cols_by_col)
+from models.database import (get_all_by_col,put_in_table, rem_from_table, get_cols_by_col)
 import urllib
 
 DB = "backlog.db"
@@ -46,8 +46,12 @@ def rm(update,ctx):
                 ctx.bot.send_message(chat_id,"El titulo no es valido, no debe tener espacios")
         else :
                 title = title[1]
-                rem_from_table(DB,TABLE_NAME,"title = '"+title+"' AND chat_id = " + str(chat_id))
-
+                r = get_all_by_col(DB,TABLE_NAME,"title = '" + title + "' AND chat_id = " + str(chat_id))
+                if len(r) == 0:
+                        ctx.bot.send_message(chat_id,"El log " + title + " no existe")
+                else:
+                        rem_from_table(DB,TABLE_NAME,"title = '"+title+"' AND chat_id = " + str(chat_id))
+                        ctx.bot.send_message(chat_id,"El log " + title + " ha sido eliminado, /logs para ver los guardados")
 # help command
 def help(update,ctx):
         ctx.bot.send_message( update.message.chat_id,("""<b>Comandos de backlog</b>\n<b>* help: </b>muestra este mensage\n<b>* hello: </b>te manda un saludo\n<b>* logs: </b>puedes ver todos los logs guardados\n<b>* rm 'log_name':</b> sirve para eliminar un log existente\n<b>* read 'titulo': </b>leer la descripcion de los logs con ese titulo\n\n<b>nota:</b> para añadir un log basta con enviar un mensaje con dos lineas, la primera con la palabra titulo seguido de : y luego el titulo que quieres darle, en la siguiente linea pones la descripcion (ojo! todo en una sola linea o el bot no lo detectara, no escribas saltos de linea (maximo 4096 caracteres el mensaje entero)"""),
